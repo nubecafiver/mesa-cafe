@@ -230,8 +230,8 @@
 <div class="wrap">
 
   <div class="intro">
-    <div class="eyebrow">Contrato "C" · Arábica · ICE Nueva York</div>
-    <h2>El termómetro global del café, con la lectura que importa para origen México.</h2>
+    <div class="eyebrow">Contrato "C" · Arábica · ICE Nueva York · Cafiver · 4 continentes</div>
+    <h2>El termómetro global del café, con la lectura en pesos que importa para Cafiver — origen Veracruz, zona Orizaba.</h2>
     <div id="demoBanner" style="display:none;margin-top:14px;font-size:12.5px;color:var(--amber);background:rgba(224,164,88,.08);border:1px solid rgba(224,164,88,.25);border-radius:10px;padding:10px 14px;font-family:'IBM Plex Mono'">
       ◆ Modo demo — datos sembrados al 24 jun 2026. Configura <b>API_BASE</b> en el código para datos en vivo desde tu backend.
     </div>
@@ -250,7 +250,8 @@
         <div>MÁX. DÍA<b class="mono" id="hi">278.50</b></div>
         <div>MÍN. DÍA<b class="mono" id="lo">264.10</b></div>
         <div>≈ USD/lb<b class="mono" id="usd">2.7620</b></div>
-        <div>POR CONTRATO*<b class="mono" id="ctr">$103,575</b></div>
+        <div>≈ MXN/kg<b class="mono" id="mxnkg" style="color:var(--cafiver-blue)">$107.30</b></div>
+        <div>TIPO CAMBIO<b class="mono" id="fx">$17.62</b></div>
       </div>
       <canvas class="spark" id="spark" width="520" height="240"></canvas>
     </div>
@@ -328,7 +329,7 @@
       <div class="label">Diferenciales de grado · canasta de entrega ICE</div>
       <div class="diff-list">
         <div class="diff me">
-          <span class="o">México <span class="flag">· tu origen</span></span>
+          <span class="o">México · Altura Veracruz <span class="flag">· Orizaba, tu origen</span></span>
           <span class="v par">A LA PAR · 0</span>
         </div>
         <div class="diff"><span class="o">Honduras · Perú · Nicaragua</span><span class="v par">a la par · 0</span></div>
@@ -372,7 +373,7 @@
       <span style="color:var(--crema);font-family:'IBM Plex Mono';font-size:11px;letter-spacing:.04em">Café de calidad · Expertos desde 1985 · Ixtaczoquitlán, Veracruz</span>
       <span style="margin-left:auto;color:var(--cafiver-blue);font-family:'IBM Plex Mono';font-size:11px;font-weight:600;letter-spacing:.08em">40 AÑOS</span>
     </div>
-    <b>Sobre los datos:</b> el panel se alimenta de tu backend seguro (Twelve Data o API Ninjas) mediante el botón <b>Actualizar</b>; los datos suelen tener ≈15 min de retraso, suficiente para decisión a nivel productor y sin tarifas de tiempo real. Mientras no configures <b>API_BASE</b>, corre en modo demo con cifras sembradas al 24 jun 2026. El contrato C representa 37,500 lb; *valor por contrato = precio × 37,500 lb. No es asesoría financiera ni de inversión.
+    <b>Sobre los datos:</b> el panel se alimenta de tu backend seguro (Twelve Data o API Ninjas) mediante el botón <b>Actualizar</b>; los datos suelen tener ≈15 min de retraso, suficiente para decisión a nivel productor y sin tarifas de tiempo real. El precio en pesos por kilo se calcula con el tipo de cambio USD/MXN del día (precio ¢/lb ÷ 100 × USD/MXN × 2.20462 lb/kg). Mientras no configures <b>API_BASE</b>, corre en modo demo con cifras sembradas al 24 jun 2026. No es asesoría financiera ni de inversión.
   </div>
 
 </div>
@@ -387,7 +388,7 @@
      con los datos sembrados al 24 jun 2026.
      Ejemplo: "https://cafe-data.tu-usuario.workers.dev"
   ================================================================= */
-  const API_BASE = "";              // ← tu endpoint backend (sin "/" final)
+  const API_BASE = "https://frosty-mud-2ced.nubecafiver.workers.dev";  // ← backend de Cafiver (Cloudflare)
   const REFRESH_PATH = "/coffee";   // ruta que expone el backend
   const AUTO_REFRESH_MIN = 0;       // 0 = manual; ej. 5 = refresca cada 5 min
 
@@ -398,6 +399,7 @@
     lo52:262.0, hi52:437.95,
     stocks:396171, stocksPrev:859389,
     robusta:3680, robustaC:-0.25,
+    usdmxn:17.62,
     asof:"24 jun 2026"
   };
   let curve = [
@@ -427,7 +429,10 @@
     $('chgPct').textContent = '('+(up?'+':'')+pct.toFixed(2)+'%)';
     $('hi').textContent=M.hi.toFixed(2); $('lo').textContent=M.lo.toFixed(2);
     $('usd').textContent=(M.px/100).toFixed(4);
-    $('ctr').textContent='$'+Math.round(M.px/100*37500).toLocaleString('en-US');
+    // precio en pesos por kilo: (¢/lb → USD/lb) × USD/MXN × 2.20462 lb/kg
+    const mxnkg = (M.px/100) * M.usdmxn * 2.20462;
+    $('mxnkg').textContent = '$'+mxnkg.toFixed(2);
+    $('fx').textContent = '$'+M.usdmxn.toFixed(2);
     $('ts').textContent=M.asof;
 
     // arabica card
@@ -528,6 +533,10 @@
       // --- robusta (opcional) ---
       const rb = j.robusta;
       if(rb && typeof rb.px==='number'){ M.robusta = rb.px; if(typeof rb.chgPct==='number') M.robustaC = rb.chgPct; }
+
+      // --- tipo de cambio USD/MXN (opcional) ---
+      const fx = j.fx;
+      if(fx && typeof fx.usdmxn==='number') M.usdmxn = fx.usdmxn;
 
       // --- rango 52 semanas (autoexpande) ---
       if(typeof s.hi52==='number') M.hi52 = Math.max(M.hi52, s.hi52);
