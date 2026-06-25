@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mesa de Café · Panel de Mercado</title>
+<title>Mesa de Café · Cafiver</title>
+<link rel="icon" href="https://cafiver.com/wp-content/uploads/2024/04/cropped-Favicon-CAFIVER-2024-270x270.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -26,6 +27,7 @@
     --down-bg:rgba(233,104,95,.12);
     --mx:#7fae6a;
     --mx-bg:rgba(127,174,106,.14);
+    --cafiver-blue:#1f6fc4;
   }
   *{box-sizing:border-box;margin:0;padding:0}
   html{-webkit-text-size-adjust:100%}
@@ -48,18 +50,21 @@
     border-bottom:1px solid var(--line);
     background:linear-gradient(180deg,rgba(36,27,20,.7),rgba(21,16,12,.2));
     position:sticky;top:0;z-index:20;backdrop-filter:blur(10px);
+    box-shadow:inset 0 -2px 0 0 var(--cafiver-blue); /* guiño a la línea azul Cafiver */
   }
-  .hrow{display:flex;align-items:center;gap:18px;padding:16px 20px;max-width:1180px;margin:0 auto;flex-wrap:wrap}
-  .brand{display:flex;align-items:center;gap:13px}
+  .hrow{display:flex;align-items:center;gap:16px;padding:14px 20px;max-width:1180px;margin:0 auto;flex-wrap:wrap}
+  .brand{display:flex;align-items:center;gap:14px}
+  .cf-logo{height:30px;width:auto;display:block}
+  .brand .divider{width:1px;height:30px;background:var(--line)}
+  .brand .titles h1{font-family:'Space Grotesk';font-size:15px;font-weight:600;letter-spacing:.03em;line-height:1.15}
+  .brand .titles .sub{font-size:10px;color:var(--muted);letter-spacing:.16em;text-transform:uppercase}
+  /* sello de respaldo si el logo no carga */
   .seal{
-    width:42px;height:42px;border-radius:50%;flex:none;
+    width:38px;height:38px;border-radius:50%;flex:none;
     background:radial-gradient(circle at 35% 30%,#3d2c1e,#1c130d);
-    border:1.5px solid var(--amber);display:grid;place-items:center;
-    box-shadow:0 0 0 4px rgba(224,164,88,.06);
+    border:1.5px solid var(--amber);display:none;place-items:center;
   }
-  .seal svg{width:22px;height:22px}
-  .brand h1{font-family:'Space Grotesk';font-size:18px;font-weight:600;letter-spacing:.04em;line-height:1.1}
-  .brand .sub{font-size:11px;color:var(--muted);letter-spacing:.18em;text-transform:uppercase}
+  .seal svg{width:20px;height:20px}
   .hspace{flex:1}
   .mkt-status{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted);font-family:'IBM Plex Mono'}
   .dot{width:8px;height:8px;border-radius:50%;background:var(--muted2)}
@@ -201,6 +206,8 @@
     .kpi{grid-column:span 12}
     .vs{grid-template-columns:1fr}
     .hrow{gap:12px}
+    .brand .divider,.brand .titles .sub{display:none}
+    .cf-logo{height:26px}
   }
   @media(prefers-reduced-motion:reduce){*{animation:none!important}}
 </style>
@@ -210,14 +217,17 @@
 <header>
   <div class="hrow">
     <div class="brand">
-      <div class="seal">
+      <img class="cf-logo" src="https://cafiver.com/wp-content/uploads/2024/03/logo-cafiver-w.png"
+           alt="Cafiver" onerror="this.style.display='none';document.getElementById('sealFallback').style.display='grid'">
+      <div class="seal" id="sealFallback">
         <svg viewBox="0 0 24 24" fill="none" stroke="#e0a458" stroke-width="1.7" stroke-linecap="round">
           <path d="M5 8h11a4 4 0 0 1 0 8h-1"/><path d="M5 8v6a4 4 0 0 0 4 4h2a4 4 0 0 0 4-4V8z"/>
           <path d="M8 2.5c-.6 1 .6 1.6 0 2.6M11 2.5c-.6 1 .6 1.6 0 2.6"/>
         </svg>
       </div>
-      <div>
-        <h1>MESA DE CAFÉ</h1>
+      <div class="divider"></div>
+      <div class="titles">
+        <h1>Mesa de Café</h1>
         <div class="sub">Panel de mercado · Veracruz</div>
       </div>
     </div>
@@ -371,6 +381,11 @@
   </div>
 
   <div class="foot">
+    <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding-bottom:14px;margin-bottom:14px;border-bottom:1px solid var(--line)">
+      <img src="https://cafiver.com/wp-content/uploads/2024/03/logo-cafiver-w.png" alt="Cafiver" style="height:22px;width:auto;opacity:.9" onerror="this.style.display='none'">
+      <span style="color:var(--crema);font-family:'IBM Plex Mono';font-size:11px;letter-spacing:.04em">Expertos en café desde 1985 · Ixtaczoquitlán, Veracruz</span>
+      <span style="margin-left:auto;color:var(--cafiver-blue);font-family:'IBM Plex Mono';font-size:11px;font-weight:600;letter-spacing:.08em">40 AÑOS</span>
+    </div>
     <b>Sobre los datos:</b> el panel se alimenta de tu backend seguro (Twelve Data o API Ninjas) mediante el botón <b>Actualizar</b>; los datos suelen tener ≈15 min de retraso, suficiente para decisión a nivel productor y sin tarifas de tiempo real. Mientras no configures <b>API_BASE</b>, corre en modo demo con cifras sembradas al 24 jun 2026. El contrato C representa 37,500 lb; *valor por contrato = precio × 37,500 lb. No es asesoría financiera ni de inversión.
   </div>
 
