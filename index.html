@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mesa de Café · Panel de Mercado</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#15100c;
+    --bg2:#1d1610;
+    --surface:#241b14;
+    --surface2:#2c211a;
+    --line:#3a2c22;
+    --amber:#e0a458;
+    --amber-bright:#f2b96b;
+    --crema:#cdab7e;
+    --txt:#f1e7da;
+    --muted:#a4937e;
+    --muted2:#7c6c5b;
+    --up:#5ec98a;
+    --up-bg:rgba(94,201,138,.12);
+    --down:#e9685f;
+    --down-bg:rgba(233,104,95,.12);
+    --mx:#7fae6a;
+    --mx-bg:rgba(127,174,106,.14);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    background:
+      radial-gradient(1200px 600px at 80% -10%, #2a1f16 0%, transparent 60%),
+      radial-gradient(900px 500px at -10% 110%, #221a12 0%, transparent 55%),
+      var(--bg);
+    color:var(--txt);
+    font-family:'Inter',sans-serif;
+    line-height:1.5;
+    min-height:100vh;
+    padding:0 0 64px;
+  }
+  .mono{font-family:'IBM Plex Mono',monospace;font-variant-numeric:tabular-nums}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 20px}
+
+  /* ---------- header ---------- */
+  header{
+    border-bottom:1px solid var(--line);
+    background:linear-gradient(180deg,rgba(36,27,20,.7),rgba(21,16,12,.2));
+    position:sticky;top:0;z-index:20;backdrop-filter:blur(10px);
+  }
+  .hrow{display:flex;align-items:center;gap:18px;padding:16px 20px;max-width:1180px;margin:0 auto;flex-wrap:wrap}
+  .brand{display:flex;align-items:center;gap:13px}
+  .seal{
+    width:42px;height:42px;border-radius:50%;flex:none;
+    background:radial-gradient(circle at 35% 30%,#3d2c1e,#1c130d);
+    border:1.5px solid var(--amber);display:grid;place-items:center;
+    box-shadow:0 0 0 4px rgba(224,164,88,.06);
+  }
+  .seal svg{width:22px;height:22px}
+  .brand h1{font-family:'Space Grotesk';font-size:18px;font-weight:600;letter-spacing:.04em;line-height:1.1}
+  .brand .sub{font-size:11px;color:var(--muted);letter-spacing:.18em;text-transform:uppercase}
+  .hspace{flex:1}
+  .mkt-status{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted);font-family:'IBM Plex Mono'}
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--muted2)}
+  .dot.open{background:var(--up);box-shadow:0 0 8px var(--up);animation:pulse 2s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.45}}
+  .updated{font-size:11px;color:var(--muted2);font-family:'IBM Plex Mono';text-align:right}
+  .updated b{color:var(--crema);font-weight:500}
+  .btn{
+    font-family:'Space Grotesk';font-size:13px;font-weight:600;letter-spacing:.02em;
+    color:#1a120b;background:var(--amber);border:none;border-radius:9px;
+    padding:9px 16px;cursor:pointer;display:flex;align-items:center;gap:8px;
+    transition:background .15s,transform .1s;
+  }
+  .btn:hover{background:var(--amber-bright)}
+  .btn:active{transform:translateY(1px)}
+  .btn:disabled{opacity:.55;cursor:wait}
+  .btn svg{width:15px;height:15px}
+  .btn.spin svg{animation:spin 1s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  /* ---------- intro ---------- */
+  .intro{padding:26px 0 8px}
+  .intro .eyebrow{font-family:'IBM Plex Mono';font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--amber);margin-bottom:6px}
+  .intro h2{font-family:'Space Grotesk';font-weight:500;font-size:clamp(20px,3vw,28px);letter-spacing:-.01em;max-width:680px}
+
+  /* ---------- grid ---------- */
+  .grid{display:grid;grid-template-columns:repeat(12,1fr);gap:16px;margin-top:22px}
+  .card{
+    background:linear-gradient(180deg,var(--surface),var(--bg2));
+    border:1px solid var(--line);border-radius:16px;padding:20px;position:relative;overflow:hidden;
+  }
+  .card .label{font-family:'IBM Plex Mono';font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:14px;display:flex;align-items:center;gap:7px}
+  .card .label .tag{margin-left:auto;font-size:9.5px;color:var(--muted2);letter-spacing:.1em}
+
+  .col-7{grid-column:span 7}
+  .col-5{grid-column:span 5}
+  .col-4{grid-column:span 4}
+  .col-6{grid-column:span 6}
+  .col-12{grid-column:span 12}
+
+  /* hero ticker */
+  .hero{grid-column:span 7}
+  .hero .top{display:flex;justify-content:space-between;align-items:flex-start}
+  .contract{font-family:'IBM Plex Mono';font-size:12px;color:var(--crema);letter-spacing:.05em}
+  .contract b{color:var(--txt)}
+  .price{font-family:'IBM Plex Mono';font-weight:600;font-size:clamp(44px,8vw,68px);line-height:1;margin:8px 0 4px;letter-spacing:-.01em}
+  .price .unit{font-size:16px;color:var(--muted);font-weight:400;margin-left:6px}
+  .chg{display:inline-flex;align-items:center;gap:8px;font-family:'IBM Plex Mono';font-size:16px;font-weight:600;padding:5px 12px;border-radius:8px}
+  .chg.up{color:var(--up);background:var(--up-bg)}
+  .chg.down{color:var(--down);background:var(--down-bg)}
+  .hilo{display:flex;gap:26px;margin-top:18px;flex-wrap:wrap}
+  .hilo div{font-size:11px;color:var(--muted);font-family:'IBM Plex Mono';letter-spacing:.06em}
+  .hilo b{display:block;color:var(--txt);font-size:16px;font-weight:500;margin-top:3px}
+  .spark{position:absolute;right:0;bottom:0;width:46%;height:120px;opacity:.55;pointer-events:none}
+
+  /* range / roast bar */
+  .roastcard{grid-column:span 5;display:flex;flex-direction:column}
+  .roast-track{height:46px;border-radius:10px;margin:6px 0 8px;position:relative;
+    background:linear-gradient(90deg,#caa178 0%,#a9763f 28%,#7a4a22 55%,#492a14 80%,#2a160a 100%);
+    border:1px solid var(--line)}
+  .roast-marker{position:absolute;top:-6px;bottom:-6px;width:3px;background:var(--txt);border-radius:2px;box-shadow:0 0 0 3px rgba(21,16,12,.6)}
+  .roast-marker::after{content:'';position:absolute;top:-7px;left:50%;transform:translateX(-50%);border:5px solid transparent;border-top-color:var(--txt)}
+  .roast-ends{display:flex;justify-content:space-between;font-family:'IBM Plex Mono';font-size:11px;color:var(--muted)}
+  .roast-ends b{display:block;color:var(--txt);font-size:13px}
+  .roast-note{font-size:11.5px;color:var(--muted);margin-top:auto;padding-top:14px;line-height:1.45}
+  .roast-note b{color:var(--crema)}
+
+  /* kpi mini */
+  .kpi{grid-column:span 3}
+  .kpi .big{font-family:'IBM Plex Mono';font-weight:600;font-size:26px;letter-spacing:-.01em}
+  .kpi .big small{font-size:13px;color:var(--muted);font-weight:400}
+  .kpi .delta{font-family:'IBM Plex Mono';font-size:12px;margin-top:6px}
+  .kpi .delta.up{color:var(--up)}.kpi .delta.down{color:var(--down)}.kpi .delta.flat{color:var(--muted)}
+  .kpi .ctx{font-size:11px;color:var(--muted2);margin-top:8px;line-height:1.4}
+
+  /* futures curve */
+  .fcurve table{width:100%;border-collapse:collapse;font-family:'IBM Plex Mono'}
+  .fcurve th{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted2);text-align:right;padding:0 0 10px;font-weight:500}
+  .fcurve th:first-child{text-align:left}
+  .fcurve td{padding:10px 0;border-top:1px solid var(--line);font-size:14px;text-align:right}
+  .fcurve td:first-child{text-align:left;color:var(--crema)}
+  .fcurve td .mn{color:var(--txt);font-weight:600}
+  .fcurve .bar{height:5px;border-radius:3px;background:var(--amber);opacity:.8;display:inline-block;vertical-align:middle}
+  .fcurve .barcell{width:34%;text-align:left!important;padding-left:14px}
+  .fcurve tr:hover td{background:rgba(224,164,88,.04)}
+
+  /* differentials */
+  .diff-list{display:flex;flex-direction:column;gap:2px}
+  .diff{display:flex;align-items:center;gap:12px;padding:9px 11px;border-radius:9px;font-size:13px}
+  .diff .o{flex:1;color:var(--txt)}
+  .diff .v{font-family:'IBM Plex Mono';font-size:13px;font-weight:600;letter-spacing:.02em}
+  .diff .v.prem{color:var(--up)}.diff .v.disc{color:var(--down)}.diff .v.par{color:var(--crema)}
+  .diff.me{background:var(--mx-bg);border:1px solid rgba(127,174,106,.4)}
+  .diff.me .o{color:#cfe6bf;font-weight:600}
+  .diff.me .flag{font-size:11px;color:var(--mx);font-family:'IBM Plex Mono';letter-spacing:.06em}
+  .diff-note{font-size:11.5px;color:var(--muted2);margin-top:14px;line-height:1.5;border-top:1px dashed var(--line);padding-top:12px}
+
+  /* arabica vs robusta */
+  .vs{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .vsc{background:var(--surface2);border:1px solid var(--line);border-radius:12px;padding:16px}
+  .vsc h4{font-family:'Space Grotesk';font-size:14px;font-weight:600;display:flex;align-items:center;gap:8px;margin-bottom:3px}
+  .vsc .ex{font-size:11px;color:var(--muted2);font-family:'IBM Plex Mono';letter-spacing:.05em;margin-bottom:12px}
+  .vsc .p{font-family:'IBM Plex Mono';font-size:24px;font-weight:600}
+  .vsc .p small{font-size:12px;color:var(--muted);font-weight:400}
+  .vsc .c{font-family:'IBM Plex Mono';font-size:13px;margin-top:5px}
+  .vsc .meta{font-size:11px;color:var(--muted2);margin-top:12px;line-height:1.45}
+  .beanA{width:11px;height:11px;border-radius:50%;background:var(--amber)}
+  .beanR{width:11px;height:11px;border-radius:50%;background:#8a6a4a}
+
+  /* drivers */
+  .drivers{display:flex;flex-direction:column;gap:0}
+  .driver{display:flex;gap:13px;padding:13px 0;border-top:1px solid var(--line)}
+  .driver:first-child{border-top:none;padding-top:2px}
+  .driver .ic{width:26px;height:26px;border-radius:8px;flex:none;display:grid;place-items:center;font-size:13px}
+  .driver.bull .ic{background:var(--up-bg);color:var(--up)}
+  .driver.bear .ic{background:var(--down-bg);color:var(--down)}
+  .driver.watch .ic{background:rgba(224,164,88,.12);color:var(--amber)}
+  .driver .tx{font-size:13px;color:var(--txt);line-height:1.5}
+  .driver .tx b{color:var(--crema);font-weight:600}
+  .driver .tx .src{display:block;font-size:10.5px;color:var(--muted2);font-family:'IBM Plex Mono';margin-top:3px;letter-spacing:.04em}
+
+  .foot{margin-top:26px;font-size:11px;color:var(--muted2);line-height:1.6;border-top:1px solid var(--line);padding-top:18px}
+  .foot b{color:var(--muted)}
+
+  /* toast */
+  #toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(120%);
+    background:var(--surface2);border:1px solid var(--line);color:var(--txt);
+    padding:12px 18px;border-radius:11px;font-size:13px;box-shadow:0 12px 40px rgba(0,0,0,.5);
+    transition:transform .35s cubic-bezier(.2,.8,.2,1);z-index:50;max-width:90vw}
+  #toast.show{transform:translateX(-50%) translateY(0)}
+  #toast .accent{color:var(--amber)}
+
+  @media(max-width:880px){
+    .col-7,.col-5,.col-4,.col-6,.hero,.roastcard,.kpi{grid-column:span 12}
+    .kpi{grid-column:span 6}
+    .spark{display:none}
+  }
+  @media(max-width:520px){
+    .kpi{grid-column:span 12}
+    .vs{grid-template-columns:1fr}
+    .hrow{gap:12px}
+  }
+  @media(prefers-reduced-motion:reduce){*{animation:none!important}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="hrow">
+    <div class="brand">
+      <div class="seal">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#e0a458" stroke-width="1.7" stroke-linecap="round">
+          <path d="M5 8h11a4 4 0 0 1 0 8h-1"/><path d="M5 8v6a4 4 0 0 0 4 4h2a4 4 0 0 0 4-4V8z"/>
+          <path d="M8 2.5c-.6 1 .6 1.6 0 2.6M11 2.5c-.6 1 .6 1.6 0 2.6"/>
+        </svg>
+      </div>
+      <div>
+        <h1>MESA DE CAFÉ</h1>
+        <div class="sub">Panel de mercado · Veracruz</div>
+      </div>
+    </div>
+    <div class="hspace"></div>
+    <div class="mkt-status"><span class="dot" id="statusDot"></span><span id="statusTxt">—</span></div>
+    <div class="updated">Actualizado<br><b id="ts">24 jun 2026</b><br><span id="srcTag" style="color:var(--muted2);font-size:9.5px;letter-spacing:.08em">datos sembrados</span></div>
+    <button class="btn" id="refreshBtn" onclick="refresh()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/></svg>
+      Actualizar
+    </button>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="intro">
+    <div class="eyebrow">Contrato "C" · Arábica · ICE Nueva York</div>
+    <h2>El termómetro global del café, con la lectura que importa para origen México.</h2>
+    <div id="demoBanner" style="display:none;margin-top:14px;font-size:12.5px;color:var(--amber);background:rgba(224,164,88,.08);border:1px solid rgba(224,164,88,.25);border-radius:10px;padding:10px 14px;font-family:'IBM Plex Mono'">
+      ◆ Modo demo — datos sembrados al 24 jun 2026. Configura <b>API_BASE</b> en el código para datos en vivo desde tu backend.
+    </div>
+  </div>
+
+  <div class="grid">
+
+    <!-- HERO -->
+    <div class="card hero">
+      <div class="top">
+        <div class="contract"><b id="cName">Café C — Sep 2026</b> · <span id="cSym">KCU26</span></div>
+      </div>
+      <div class="price mono"><span id="px">276.20</span><span class="unit">¢/lb</span></div>
+      <span class="chg up" id="chgPill"><span id="chgArrow">▲</span><span id="chgAbs">+10.96</span><span id="chgPct">(+4.13%)</span></span>
+      <div class="hilo">
+        <div>MÁX. DÍA<b class="mono" id="hi">278.50</b></div>
+        <div>MÍN. DÍA<b class="mono" id="lo">264.10</b></div>
+        <div>≈ USD/lb<b class="mono" id="usd">2.7620</b></div>
+        <div>POR CONTRATO*<b class="mono" id="ctr">$103,575</b></div>
+      </div>
+      <canvas class="spark" id="spark" width="520" height="240"></canvas>
+    </div>
+
+    <!-- ROAST RANGE -->
+    <div class="card roastcard">
+      <div class="label">Rango 52 semanas · "barra de tueste" <span class="tag">referencial</span></div>
+      <div class="roast-track"><div class="roast-marker" id="roastMk" style="left:6%"></div></div>
+      <div class="roast-ends">
+        <span>MÍN<b class="mono" id="lo52">262.0</b></span>
+        <span>MÁX<b class="mono" id="hi52">437.95</b></span>
+      </div>
+      <div class="roast-note">El precio está en la zona <b id="roastZone">baja</b> de su rango anual. El récord histórico del Contrato C fue <b>441 ¢/lb</b> en feb 2025; desde ahí corrigió con la perspectiva de cosecha récord en Brasil.</div>
+    </div>
+
+    <!-- KPIs -->
+    <div class="card kpi">
+      <div class="label">Inventarios ICE arábica</div>
+      <div class="big mono" id="stocks">396,171 <small>sacos</small></div>
+      <div class="delta down" id="stocksD">▼ vs 859,389 hace 1 año</div>
+      <div class="ctx">Mínimo de varios años. Poco colchón físico ante retrasos = soporte alcista.</div>
+    </div>
+    <div class="card kpi">
+      <div class="label">Cosecha Brasil 26/27</div>
+      <div class="big mono">39% <small>del área</small></div>
+      <div class="delta down">▼ vs 43% año previo</div>
+      <div class="ctx">Avance al 17 jun (Safras &amp; Mercado), bajo el promedio de 5 años (40%).</div>
+    </div>
+    <div class="card kpi">
+      <div class="label">Producción Brasil (USDA)</div>
+      <div class="big mono">71.9 <small>M sacos</small></div>
+      <div class="delta down">▲ +14% i/a · récord</div>
+      <div class="ctx">Pronóstico récord 26/27. Presión bajista de fondo sobre el precio.</div>
+    </div>
+    <div class="card kpi">
+      <div class="label">Superávit global 26/27</div>
+      <div class="big mono">9.5 <small>M sacos</small></div>
+      <div class="delta down">▲ desde 7.0M (Rabobank)</div>
+      <div class="ctx">Incluye 5.9M de arábica. Excedente mundial proyectado.</div>
+    </div>
+
+    <!-- FUTURES CURVE -->
+    <div class="card col-7 fcurve">
+      <div class="label">Curva de futuros · vencimientos <span class="tag">referencial · 24 jun 2026</span></div>
+      <table>
+        <thead><tr><th>Vencimiento</th><th>Símbolo</th><th>Precio ¢/lb</th><th class="barcell">&nbsp;</th></tr></thead>
+        <tbody id="curveBody"></tbody>
+      </table>
+      <div class="roast-note" style="padding-top:14px">Mercado en <b>backwardation</b> (los meses cercanos cotizan más caros que los lejanos): señal de tensión en la oferta inmediata.</div>
+    </div>
+
+    <!-- ARABICA VS ROBUSTA -->
+    <div class="card col-5">
+      <div class="label">Arábica vs Robusta</div>
+      <div class="vs">
+        <div class="vsc">
+          <h4><span class="beanA"></span>Arábica</h4>
+          <div class="ex">ICE NY · "Coffee C" · KC</div>
+          <div class="p mono"><span id="araP">276.20</span> <small>¢/lb</small></div>
+          <div class="c mono up" id="araC">+4.13%</div>
+          <div class="meta">≈75% de la producción mundial. Suaves lavados. Lo que cultivas en Veracruz.</div>
+        </div>
+        <div class="vsc">
+          <h4><span class="beanR"></span>Robusta</h4>
+          <div class="ex">ICE Europa · Londres · RC</div>
+          <div class="p mono"><span id="robP">3,680</span> <small>USD/t</small></div>
+          <div class="c mono down" id="robC">−0.25%</div>
+          <div class="meta">≈25% mundial. Vietnam e Indonesia. Base del espresso europeo.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DIFFERENTIALS -->
+    <div class="card col-5">
+      <div class="label">Diferenciales de grado · canasta de entrega ICE</div>
+      <div class="diff-list">
+        <div class="diff me">
+          <span class="o">México <span class="flag">· tu origen</span></span>
+          <span class="v par">A LA PAR · 0</span>
+        </div>
+        <div class="diff"><span class="o">Honduras · Perú · Nicaragua</span><span class="v par">a la par · 0</span></div>
+        <div class="diff"><span class="o">Colombia · Costa Rica · Kenia</span><span class="v prem">+1000 pts</span></div>
+        <div class="diff"><span class="o">Guatemala</span><span class="v prem">+500 pts</span></div>
+        <div class="diff"><span class="o">India · Ruanda · Burundi</span><span class="v disc">−100 pts</span></div>
+        <div class="diff"><span class="o">Rep. Dominicana · Ecuador</span><span class="v disc">−400 pts</span></div>
+        <div class="diff"><span class="o">Brasil</span><span class="v disc">−600 pts</span></div>
+      </div>
+      <div class="diff-note">Estos son los diferenciales de <b>grado de entrega</b> que fija ICE (100 pts = 1 ¢/lb), no tu prima comercial. Tu precio FOB real se negocia aparte: un arábica lavado latinoamericano de calidad estándar suele cobrar entre <b>70% y 85% del Contrato C</b> según calidad, taza y cadena.</div>
+    </div>
+
+    <!-- DRIVERS -->
+    <div class="card col-7">
+      <div class="label">Qué mueve el mercado ahora</div>
+      <div class="drivers" id="drivers">
+        <div class="driver bull">
+          <div class="ic">▲</div>
+          <div class="tx"><b>Lluvias en Brasil retrasan la cosecha.</b> Nuevos frentes fríos sobre Minas Gerais, São Paulo y Espírito Santo frenan la recolección y el secado, amenazando la calidad del grano. Arábica en máximo de 6 semanas.<span class="src">ICE · Climatempo · jun 2026</span></div>
+        </div>
+        <div class="driver bull">
+          <div class="ic">▲</div>
+          <div class="tx"><b>Inventarios certificados en mínimos.</b> Los stocks de arábica en ICE cayeron a 396,171 sacos, menos de la mitad que hace un año (859,389). Poco margen ante cualquier demora.<span class="src">ICE Futures US</span></div>
+        </div>
+        <div class="driver watch">
+          <div class="ic">◆</div>
+          <div class="tx"><b>El Niño en el radar.</b> Podría retrasar las lluvias de sep–oct en Brasil, periodo crítico de floración para la cosecha 2026/27. Prima de riesgo a más largo plazo.<span class="src">Análisis de industria</span></div>
+        </div>
+        <div class="driver bear">
+          <div class="ic">▼</div>
+          <div class="tx"><b>Cosecha récord brasileña de fondo.</b> El USDA proyecta 71.9M de sacos (+14% i/a) y Rabobank ve superávit global de 9.5M. La tendencia estructural sigue siendo bajista.<span class="src">USDA FAS · Rabobank</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="foot">
+    <b>Sobre los datos:</b> el panel se alimenta de tu backend seguro (Twelve Data o API Ninjas) mediante el botón <b>Actualizar</b>; los datos suelen tener ≈15 min de retraso, suficiente para decisión a nivel productor y sin tarifas de tiempo real. Mientras no configures <b>API_BASE</b>, corre en modo demo con cifras sembradas al 24 jun 2026. El contrato C representa 37,500 lb; *valor por contrato = precio × 37,500 lb. No es asesoría financiera ni de inversión.
+  </div>
+
+</div>
+
+<div id="toast"></div>
+
+<script>
+  /* =================================================================
+     CONFIGURACIÓN — pega aquí la URL de tu backend (Worker / función).
+     El backend guarda tu API key en secreto y habla con Twelve Data
+     o API Ninjas. Si lo dejas vacío, el panel corre en MODO DEMO
+     con los datos sembrados al 24 jun 2026.
+     Ejemplo: "https://cafe-data.tu-usuario.workers.dev"
+  ================================================================= */
+  const API_BASE = "";              // ← tu endpoint backend (sin "/" final)
+  const REFRESH_PATH = "/coffee";   // ruta que expone el backend
+  const AUTO_REFRESH_MIN = 0;       // 0 = manual; ej. 5 = refresca cada 5 min
+
+  // ---------- seed state (al 24 jun 2026, anclado en datos públicos) ----------
+  let M = {
+    name:"Café C — Sep 2026", sym:"KCU26",
+    px:276.20, prev:265.24, hi:278.50, lo:264.10,
+    lo52:262.0, hi52:437.95,
+    stocks:396171, stocksPrev:859389,
+    robusta:3680, robustaC:-0.25,
+    asof:"24 jun 2026"
+  };
+  let curve = [
+    {m:"Septiembre 2026", s:"KCU26", p:276.20},
+    {m:"Diciembre 2026",  s:"KCZ26", p:271.50},
+    {m:"Marzo 2027",      s:"KCH27", p:266.80},
+    {m:"Mayo 2027",       s:"KCK27", p:262.40},
+    {m:"Julio 2027",      s:"KCN27", p:258.90}
+  ];
+  // serie reciente referencial para la sparkline (anclada al rango de jun 2026)
+  const series = [255.1,253.8,256.4,259.0,257.7,261.2,263.9,262.1,260.5,258.8,
+                  261.4,264.7,266.2,263.9,261.1,259.6,262.8,265.5,268.9,267.2,
+                  264.8,266.9,269.7,272.3,270.8,268.4,271.6,274.2,265.2,276.20];
+
+  const $ = id => document.getElementById(id);
+  const fmtN = n => n.toLocaleString('es-MX');
+
+  function render(){
+    $('cName').textContent = M.name; $('cSym').textContent = M.sym;
+    $('px').textContent = M.px.toFixed(2);
+    const abs = M.px - M.prev, pct = (abs/M.prev*100);
+    const up = abs>=0;
+    const pill=$('chgPill');
+    pill.className = 'chg '+(up?'up':'down');
+    $('chgArrow').textContent = up?'▲':'▼';
+    $('chgAbs').textContent = (up?'+':'')+abs.toFixed(2);
+    $('chgPct').textContent = '('+(up?'+':'')+pct.toFixed(2)+'%)';
+    $('hi').textContent=M.hi.toFixed(2); $('lo').textContent=M.lo.toFixed(2);
+    $('usd').textContent=(M.px/100).toFixed(4);
+    $('ctr').textContent='$'+Math.round(M.px/100*37500).toLocaleString('en-US');
+    $('ts').textContent=M.asof;
+
+    // arabica card
+    $('araP').textContent=M.px.toFixed(2);
+    const ac=$('araC'); ac.textContent=(up?'+':'')+pct.toFixed(2)+'%'; ac.className='c mono '+(up?'up':'down');
+    // robusta
+    $('robP').textContent=fmtN(M.robusta);
+    const rc=$('robC'); const ru=M.robustaC>=0; rc.textContent=(ru?'+':'−')+Math.abs(M.robustaC).toFixed(2)+'%'; rc.className='c mono '+(ru?'up':'down');
+    // stocks
+    $('stocks').innerHTML=fmtN(M.stocks)+' <small>sacos</small>';
+    $('stocksD').textContent='▼ vs '+fmtN(M.stocksPrev)+' hace 1 año';
+
+    // 52w roast marker
+    $('lo52').textContent=M.lo52.toFixed(1); $('hi52').textContent=M.hi52.toFixed(2);
+    let pos=(M.px-M.lo52)/(M.hi52-M.lo52)*100; pos=Math.max(2,Math.min(98,pos));
+    $('roastMk').style.left=pos+'%';
+    $('roastZone').textContent= pos<33?'baja':(pos<66?'media':'alta');
+
+    renderCurve(); drawSpark();
+    marketStatus();
+  }
+
+  function renderCurve(){
+    const max=Math.max(...curve.map(c=>c.p)), min=Math.min(...curve.map(c=>c.p));
+    $('curveBody').innerHTML = curve.map(c=>{
+      const w = 18 + (c.p-min)/(max-min||1)*82;
+      return `<tr><td>${c.m}</td><td style="color:var(--muted)">${c.s}</td>
+        <td class="mn">${c.p.toFixed(2)}</td>
+        <td class="barcell"><span class="bar" style="width:${w}%"></span></td></tr>`;
+    }).join('');
+  }
+
+  function drawSpark(){
+    const cv=$('spark'); if(!cv) return;
+    const ctx=cv.getContext('2d'), W=cv.width, H=cv.height, pad=10;
+    ctx.clearRect(0,0,W,H);
+    const mx=Math.max(...series), mn=Math.min(...series);
+    const X=i=>pad+i/(series.length-1)*(W-2*pad);
+    const Y=v=>H-pad-(v-mn)/(mx-mn||1)*(H-2*pad);
+    // area
+    const g=ctx.createLinearGradient(0,0,0,H);
+    g.addColorStop(0,'rgba(224,164,88,.35)'); g.addColorStop(1,'rgba(224,164,88,0)');
+    ctx.beginPath(); ctx.moveTo(X(0),Y(series[0]));
+    series.forEach((v,i)=>ctx.lineTo(X(i),Y(v)));
+    ctx.lineTo(X(series.length-1),H); ctx.lineTo(X(0),H); ctx.closePath();
+    ctx.fillStyle=g; ctx.fill();
+    // line
+    ctx.beginPath(); ctx.moveTo(X(0),Y(series[0]));
+    series.forEach((v,i)=>ctx.lineTo(X(i),Y(v)));
+    ctx.strokeStyle='#f2b96b'; ctx.lineWidth=2.4; ctx.lineJoin='round'; ctx.stroke();
+    // last dot
+    const lx=X(series.length-1), ly=Y(series[series.length-1]);
+    ctx.beginPath(); ctx.arc(lx,ly,4,0,7); ctx.fillStyle='#f2b96b'; ctx.fill();
+  }
+
+  function marketStatus(){
+    // ICE NY arábica: 4:15–13:30 ET, lun–vie
+    try{
+      const now=new Date();
+      const et=new Date(now.toLocaleString('en-US',{timeZone:'America/New_York'}));
+      const d=et.getDay(), mins=et.getHours()*60+et.getMinutes();
+      const open = d>=1 && d<=5 && mins>=255 && mins<=810;
+      $('statusDot').className='dot'+(open?' open':'');
+      $('statusTxt').textContent = open?'Mercado abierto':'Mercado cerrado';
+    }catch(e){ $('statusTxt').textContent='—'; }
+  }
+
+  // ---------- live refresh vía backend seguro (Twelve Data / API Ninjas) ----------
+  async function refresh(){
+    if(!API_BASE){
+      toast('Modo demo · configura <span class="accent">API_BASE</span> para datos en vivo.');
+      return;
+    }
+    const btn=$('refreshBtn'); btn.disabled=true; btn.classList.add('spin');
+    toast('Consultando datos del café…');
+    try{
+      const ctrl = new AbortController();
+      const to = setTimeout(()=>ctrl.abort(), 12000);
+      const r = await fetch(API_BASE.replace(/\/$/,'') + REFRESH_PATH, {
+        headers:{'Accept':'application/json'}, signal:ctrl.signal
+      });
+      clearTimeout(to);
+      if(!r.ok) throw new Error('HTTP '+r.status);
+      const j = await r.json();
+      if(j.ok===false) throw new Error(j.error||'backend');
+
+      // --- spot (mes frontal arábica) ---
+      const s = j.spot || j;
+      if(typeof s.px !== 'number') throw new Error('px inválido');
+      M.px = s.px;
+      if(typeof s.prev==='number') M.prev = s.prev;
+      if(typeof s.hi==='number')   M.hi   = s.hi;
+      if(typeof s.lo==='number')   M.lo   = s.lo;
+      if(s.name) M.name = s.name;
+      if(s.sym)  M.sym  = s.sym;
+      if(typeof s.stocks==='number'){ M.stocksPrev = M.stocks; M.stocks = s.stocks; }
+
+      // --- robusta (opcional) ---
+      const rb = j.robusta;
+      if(rb && typeof rb.px==='number'){ M.robusta = rb.px; if(typeof rb.chgPct==='number') M.robustaC = rb.chgPct; }
+
+      // --- rango 52 semanas (autoexpande) ---
+      if(typeof s.hi52==='number') M.hi52 = Math.max(M.hi52, s.hi52);
+      if(typeof s.lo52==='number') M.lo52 = Math.min(M.lo52, s.lo52);
+      if(M.px>M.hi52) M.hi52 = M.px;
+      if(M.px<M.lo52) M.lo52 = M.px;
+
+      // --- curva de futuros (si el backend la trae, p.ej. API Ninjas) ---
+      if(Array.isArray(j.curve) && j.curve.length){
+        curve = j.curve.slice(0,6).map(c=>({ m:c.month||c.m||'', s:c.sym||c.s||'', p:Number(c.px) }))
+                       .filter(c=>isFinite(c.p));
+      } else {
+        curve[0].p = M.px; // al menos ancla el mes frontal
+      }
+
+      // --- timestamp + fuente ---
+      M.asof = j.asof
+        ? new Date(j.asof).toLocaleString('es-MX',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})
+        : new Date().toLocaleString('es-MX',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
+      const src = j.source ? ' · '+j.source : '';
+      $('srcTag') && ($('srcTag').textContent = (j.delayed===false?'en vivo':'~15 min')+src);
+
+      series.push(M.px); if(series.length>30) series.shift();
+      render();
+      toast('Actualizado · <span class="accent">'+M.px.toFixed(2)+' ¢/lb</span>'+src);
+    }catch(e){
+      const why = e.name==='AbortError' ? 'tiempo agotado' : (e.message||'error');
+      toast('No se pudo actualizar ('+why+'). Mostrando últimos datos ('+M.asof+').');
+    }finally{
+      btn.disabled=false; btn.classList.remove('spin');
+    }
+  }
+
+  let tT;
+  function toast(html){
+    const t=$('toast'); t.innerHTML=html; t.classList.add('show');
+    clearTimeout(tT); tT=setTimeout(()=>t.classList.remove('show'),3600);
+  }
+
+  render();
+  window.addEventListener('resize',drawSpark);
+
+  // estado inicial de fuente / modo demo
+  if(API_BASE){
+    $('srcTag').textContent='listo · pulsa Actualizar';
+    if(AUTO_REFRESH_MIN>0){ refresh(); setInterval(refresh, AUTO_REFRESH_MIN*60000); }
+  } else {
+    $('demoBanner').style.display='block';
+  }
+</script>
+</body>
+</html>
